@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 //функция обёртка для синхронных операций
+const linkZp = 'https://zwiftpower.com/events.php?zid=2575782';
 async function start() {
 	try {
 		// открываем браузер
@@ -15,8 +16,7 @@ async function start() {
 			height: 1080,
 			deviceScaleFactor: 1
 		});
-		const link = 'https://zwiftpower.com/events.php?zid=2619563';
-		await page.goto(link, { waitUntil: 'domcontentloaded' });
+		await page.goto(linkZp, { waitUntil: 'domcontentloaded' });
 		const user = process.env.USER;
 		const password = process.env.PASSWORD;
 		await page.$eval('#username', (elem, user) => (elem.value = user), user);
@@ -24,14 +24,12 @@ async function start() {
 		await page.click('#login > fieldset > div.row.mobile-fix > div:nth-child(1) > input.btn.btn-success.btn-block.btn-lg');
 		await page.waitForTimeout(6000);
 
-
-
-		const table = await page.evaluate(async () => {
+		const table = await page.evaluate(async (linkZp) => {
 			//определение названий столбцов и формирование массива
 			resultThead = [];
 			let thead = await document.querySelectorAll('#table_event_results_final > thead > tr > th');
 			thead.forEach(element => {
-				resultThead.push(element.innerText.split(' ').join(''))
+				resultThead.push(element.innerText.split(' ').join(''));
 			});
 			//определение номеров столбцов с нужными данными
 			//weightColumn определяется как номер колонки среднего пульса -1
@@ -51,50 +49,51 @@ async function start() {
 			}
 			// console.log(theadNumber);
 
-			let result = [{ timeScraping: new Date().toLocaleString() }];
+			let result = [];
 			let container = await document.querySelectorAll('#table_event_results_final > tbody > tr')
 			let i = 0;
 
 			container.forEach(element => {
 				i++
-				let category = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(1)`).innerText;
-				let rider = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.text-left.text-nowrap.athlete_col > div > a`).innerText;
-				//оптимизировать
-				let riderTeam = '';
-				try {
-					riderTeam = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.text-left.text-nowrap.athlete_col > div > small > span > a`).innerText;
-				} catch (error) {
-					riderTeam = '';
-				}
+				let category = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(1)`) ?? { innerText: "" })
+					.innerText;
+				let rider = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.text-left.text-nowrap.athlete_col > div > a`) ?? { innerText: "" })
+					.innerText;
+				let riderFlag = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.text-left.text-nowrap.athlete_col > div > span`)
+					.className.split('flag-icon flag-icon-').join('');
+				let riderTeam = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.text-left.text-nowrap.athlete_col > div > small > span > a`) ?? { innerText: "" })
+					.innerText;
 				let riderLinkZp = element.querySelector('a').href;
-				let timeFull = element.querySelector('.pull-left').innerText;
-				let timeGap = element.querySelector('.pull-right')
-					.innerText.split('+').join('').split('s').join('');
-				let avgWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avgWKgColumn})`)
+				let timeFull = (element.querySelector('.pull-left') ?? { innerText: "" }).innerText;
+				let timeGap = (element.querySelector('.pull-right') ?? { innerText: "" }).innerText.split('+').join('').split('s').join('');
+				let avgWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avgWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let avgWatts = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avgWattsColumn})`)
+				let avgWatts = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avgWattsColumn})`) ?? { innerText: "" })
 					.innerText.split('w').join('');
-				let twentyMinWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.twentyMinWKgColumn})`)
+				let twentyMinWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.twentyMinWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let fiveMinWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.fiveMinWKgColumn})`)
+				let fiveMinWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.fiveMinWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let oneMinWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.oneMinWKgColumn})`)
+				let oneMinWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.oneMinWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let thirtySeсWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.thirtySeсWKgColumn})`)
+				let thirtySeсWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.thirtySeсWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let fifteenSeсWKg = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.fifteenSeсWKgColumn})`)
+				let fifteenSeсWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.fifteenSeсWKgColumn})`) ?? { innerText: "" })
 					.innerText.split('w/kg').join('');
-				let weight = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.weightColumn})`)
+				let weight = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.weightColumn})`) ?? { innerText: "" })
 					.innerText.split('kg').join('');
-				let avrHeart = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avrHeartColumn})`)
+				let avrHeart = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avrHeartColumn})`) ?? { innerText: "" })
 					.innerText.split('bpm').join('');
-				let maxHeart = element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.maxHeartColumn})`)
+				let maxHeart = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.maxHeartColumn})`) ?? { innerText: "" })
 					.innerText.split('bpm').join('');
+				let height = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td.info-expand.text-right.text-nowrap.padright24`) ?? { innerText: "" })
+					.innerText.split('cm').join('');
 
 
 				result.push({
 					category,
 					rider,
+					riderFlag,
 					riderTeam,
 					riderLinkZp,
 					timeFull,
@@ -108,11 +107,13 @@ async function start() {
 					fifteenSeсWKg,
 					weight,
 					avrHeart,
-					maxHeart
+					maxHeart,
+					height
 				})
 			});
 			return result
 		})
+		table.unshift({ timeScraping: new Date().toLocaleString(), linkZp });
 
 		fs.writeFile('zwiftpower.json', JSON.stringify(table), (error) => {
 			if (error) {
