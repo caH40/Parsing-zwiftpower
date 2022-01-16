@@ -95,12 +95,12 @@ async function pageForParce(page) {
 	})
 	// table.unshift({ timeScraping: new Date().toLocaleString(), linkZp });
 
-	fs.writeFile('zwiftpower.json', JSON.stringify(table), (error) => {
-		if (error) {
-			throw error
-		}
-		console.log(`Zwiftpower.json saved ${table[0].timeScraping}`);
-	});
+	// fs.writeFile('zwiftpower.json', JSON.stringify(table), (error) => {
+	// 	if (error) {
+	// 		throw error
+	// 	}
+	// 	console.log(`Zwiftpower.json saved ${table[0].timeScraping}`);
+	// });
 	return table;
 }
 
