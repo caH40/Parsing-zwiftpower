@@ -2,10 +2,11 @@ require('dotenv').config();
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-const pageNew = require('./app_modules/page-new');
+const pageForParce = require('./app_modules/page-parce');
+const pageCounter = require('./app_modules/pages-counter');
 
 //функция обёртка для синхронных операций
-const linkZp = 'https://zwiftpower.com/events.php?zid=2556665';
+const linkZp = 'https://zwiftpower.com/events.php?zid=2556652';
 async function start() {
 	try {
 		// открываем браузер
@@ -25,12 +26,21 @@ async function start() {
 		await page.$eval('#password', (elem, password) => (elem.value = password), password);
 		await page.click('#login > fieldset > div.row.mobile-fix > div:nth-child(1) > input.btn.btn-success.btn-block.btn-lg');
 		await page.waitForTimeout(6000);
-		return page
-		// await browser.close();
+
+		const numberPages = await pageCounter(page);
+
+		let parcerPage = await pageForParce(page);
+
+		for (let i = 3; i < pages + 2; i++) {
+			await page.click(`#table_event_results_final_paginate > ul > li:nth-child(${i}) > a`);
+			await page.waitForTimeout(5000);
+			parcerPage = await pageForParce(page);
+
+
+		}
+		await browser.close();
 	} catch (error) {
 		throw error
 	}
 }
-
-
-pageNew(start);
+start()
