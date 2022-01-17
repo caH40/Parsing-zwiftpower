@@ -15,16 +15,15 @@ mongoose.connect(process.env.MONGODB)
 		console.log(error);
 	})
 
-
 //функция обёртка для синхронных операций
-const linkZp = 'https://zwiftpower.com/events.php?zid=2556654';
-const timeRequest = new Date().toLocaleString();
+const linkZp = 'https://zwiftpower.com/events.php?zid=2628997';
+const timeRequest = new Date().getTime();
 
 async function start() {
 	try {
 		// открываем браузер
-		const browser = await puppeteer.launch();
-		// const browser = await puppeteer.launch({ headless: false, slowMo: 100, devtools: true })
+		// const browser = await puppeteer.launch();
+		const browser = await puppeteer.launch({ headless: false, slowMo: 100, devtools: true })
 		// открываем страницу в браузере
 		const page = await browser.newPage();
 		await page.setViewport({
@@ -41,16 +40,17 @@ async function start() {
 		await page.waitForTimeout(5000);
 
 		const numberPages = await pageCounter(page);
+		console.log(numberPages);
 		let parserPage = await pageForParse(page);
-
-		for (let i = 3; i < numberPages + 2; i++) {
-			await page.click(`#table_event_results_final_paginate > ul > li:nth-child(${i}) > a`);
-			await page.waitForTimeout(5000);
-			let parserPageNext = await pageForParse(page);
-			parserPageNext.forEach(element => {
-				parserPage.push(element);
-			})
-
+		if (numberPages > 1) {
+			for (let i = 3; i < numberPages + 2; i++) {
+				await page.click(`#table_event_results_final_paginate > ul > li:nth-child(${i}) > a`);
+				await page.waitForTimeout(5000);
+				let parserPageNext = await pageForParse(page);
+				parserPageNext.forEach(element => {
+					parserPage.push(element);
+				})
+			}
 		}
 		console.log(`Количество записей - ${parserPage.length}`)
 		let zpData = new Rawchart({ url: linkZp, timeRequest: timeRequest, zpData: parserPage })

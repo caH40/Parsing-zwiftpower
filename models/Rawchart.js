@@ -4,7 +4,7 @@ const rawChartSchema = new Schema({
 		type: String
 	},
 	timeRequest: {
-		type: String
+		type: Number
 	},
 	zpData: {
 		type: JSON

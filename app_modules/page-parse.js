@@ -18,6 +18,7 @@ async function pageForParse(page) {
 			timerColumn: resultThead.indexOf('Time') + 1,
 			avgWKgColumn: resultThead.indexOf('avg') + 1,
 			avgWattsColumn: resultThead.indexOf('watts') + 1,
+			normalisedPowerColumn: resultThead.indexOf('NP') + 1,
 			twentyMinWKgColumn: resultThead.indexOf('20m') + 1,
 			fiveMinWKgColumn: resultThead.indexOf('5m') + 1,
 			oneMinWKgColumn: resultThead.indexOf('1m') + 1,
@@ -50,6 +51,10 @@ async function pageForParse(page) {
 				.innerText.split('w/kg').join('');
 			let avgWatts = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.avgWattsColumn})`) ?? { innerText: "" })
 				.innerText.split('w').join('');
+			let normalisedPower = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.normalisedPowerColumn})`) ?? { innerText: "" })
+				.innerText.split('w').join('');
+
+
 			let twentyMinWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.twentyMinWKgColumn})`) ?? { innerText: "" })
 				.innerText.split('w/kg').join('');
 			let fiveMinWKg = (element.querySelector(`#table_event_results_final > tbody > tr:nth-child(${i}) > td:nth-child(${theadNumber.fiveMinWKgColumn})`) ?? { innerText: "" })
@@ -80,6 +85,7 @@ async function pageForParse(page) {
 				timeGap,
 				avgWKg,
 				avgWatts,
+				normalisedPower,
 				twentyMinWKg,
 				fiveMinWKg,
 				oneMinWKg,
