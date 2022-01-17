@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const rowChartSchema = new Schema({
+const rawChartSchema = new Schema({
 	url: {
 		type: String
 	},
@@ -10,4 +10,4 @@ const rowChartSchema = new Schema({
 		type: JSON
 	}
 })
-module.exports = model('rowCharts', rowChartSchema);
+module.exports = model('rowCharts', rawChartSchema);

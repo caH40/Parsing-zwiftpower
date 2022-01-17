@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-async function pageForParce(page) {
+async function pageForParse(page) {
 
 	// const pageStart = await start();
 
@@ -104,4 +104,4 @@ async function pageForParce(page) {
 	return table;
 }
 
-module.exports = pageForParce;
+module.exports = pageForParse;

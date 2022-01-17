@@ -1,10 +1,9 @@
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const mongoose = require('mongoose');
-const Rowchart = require('./models/Rowchart')
-const fs = require('fs');
+const Rawchart = require('./models/Rawchart')
 
-const pageForParce = require('./app_modules/page-parce');
+const pageForParse = require('./app_modules/page-parse');
 const pageCounter = require('./app_modules/pages-counter');
 
 // подключение к базе данных
@@ -18,7 +17,7 @@ mongoose.connect(process.env.MONGODB)
 
 
 //функция обёртка для синхронных операций
-const linkZp = 'https://zwiftpower.com/events.php?zid=2556631';
+const linkZp = 'https://zwiftpower.com/events.php?zid=2556654';
 const timeRequest = new Date().toLocaleString();
 
 async function start() {
@@ -42,20 +41,20 @@ async function start() {
 		await page.waitForTimeout(5000);
 
 		const numberPages = await pageCounter(page);
-		let parcerPage = await pageForParce(page);
+		let parserPage = await pageForParse(page);
 
 		for (let i = 3; i < numberPages + 2; i++) {
 			await page.click(`#table_event_results_final_paginate > ul > li:nth-child(${i}) > a`);
 			await page.waitForTimeout(5000);
-			let parcerPageNext = await pageForParce(page);
-			parcerPageNext.forEach(element => {
-				parcerPage.push(element);
+			let parserPageNext = await pageForParse(page);
+			parserPageNext.forEach(element => {
+				parserPage.push(element);
 			})
 
 		}
-		console.log(parcerPage.length)
-		let zpData = new Rowchart({ url: linkZp, timeRequest: timeRequest, zpData: parcerPage })
-		await zpData.save().catch(error => console.log(error));
+		console.log(`Количество записей - ${parserPage.length}`)
+		let zpData = new Rawchart({ url: linkZp, timeRequest: timeRequest, zpData: parserPage })
+		await zpData.save().then(console.log('data saved in mongo')).catch(error => console.log(error));
 		await browser.close();
 	} catch (error) {
 		throw error
